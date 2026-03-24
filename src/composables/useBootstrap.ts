@@ -12,7 +12,7 @@ export function useBootstrap() {
       return "";
     }
 
-    return `http://localhost:${bootstrap.value.runtimeConfig.preferredPort}${bootstrap.value.routes.mobile}`;
+    return bootstrap.value.services.session.accessUrl;
   });
 
   onMounted(async () => {

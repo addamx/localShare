@@ -27,8 +27,12 @@ const bootstrapFallback: AppBootstrap = {
     clipboard: {
       mode: "polling",
       pollIntervalMs: 800,
+      dedupWindowMs: 1600,
       maxTextBytes: 65536,
       currentItemTracking: true,
+      running: false,
+      subscriberCount: 0,
+      refreshEventTopic: "localshare://clipboard/refresh",
     },
     httpServer: {
       bindHost: "0.0.0.0",
@@ -36,24 +40,43 @@ const bootstrapFallback: AppBootstrap = {
       healthEndpoint: "/api/v1/health",
       mobileBasePath: mobileRoute,
       sseEndpoint: "/api/v1/events",
+      effectivePort: 8765,
+      state: "running",
+      lastError: null,
     },
     auth: {
       tokenTtlMinutes: 30,
       rotationEnabled: true,
       bearerHeaderName: "Authorization",
     },
+    session: {
+      sessionId: "bootstrap-session",
+      expiresAt: Date.now() + 30 * 60 * 1000,
+      status: "active",
+      accessUrl: `http://localhost:8765${mobileRoute}?token=bootstrap-token`,
+      publicHost: "localhost",
+      publicPort: 8765,
+      mobileBasePath: mobileRoute,
+      tokenTtlMinutes: 30,
+      bearerHeaderName: "Authorization",
+      tokenQueryKey: "token",
+    },
     persistence: {
       databasePath: "~/.localshare/data/localshare.db",
       migrationsEnabled: true,
+      schemaVersion: 0,
+      ready: true,
     },
     network: {
       deviceName: "desktop-host",
+      accessHost: "localhost",
+      accessHosts: ["localhost"],
       lanDiscoveryEnabled: true,
     },
   },
 };
 
-function isTauriRuntime() {
+export function isTauriRuntime() {
   return typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
 }
 
